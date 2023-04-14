@@ -1,4 +1,5 @@
 #N canvas 494 209 1199 625 12;
+#X declare -path dep;
 #X obj 192 343 adc~;
 #X obj 298 143 hsl 128 17 -15 15 0 0 empty empty empty -2 -8 0 10 #181818 #fcfcfc #fcfcfc 0 1;
 #X msg 298 168 highvol \$1, f 11;
@@ -90,15 +91,15 @@
 #X obj 694 487 r High_Mix @hv_param 0 100 50;
 #X obj 727 622 r High_Feedback @hv_param -100 100 0, f 37;
 #X obj 759 749 r High_Speed @hv_param 0 20 2;
-#X obj 774 847 r High_Intensity @hv_param 0 100 20, f 32;
+#X obj 774 847 r High_Intensity @hv_param 0 100 20, f 33;
 #X obj 1097 699 r Mid_Mix @hv_param 0 100 50;
 #X obj 1130 834 r Mid_Feedback @hv_param -100 100 0, f 37;
 #X obj 1159 959 r Mid_Speed @hv_param 0 20 2;
-#X obj 1177 1059 r Mid_Intensity @hv_param 0 100 20, f 32;
+#X obj 1177 1059 r Mid_Intensity @hv_param 0 100 20, f 33;
 #X obj 1519 899 r Low_Mix @hv_param 0 100 50;
 #X obj 1552 1034 r Low_Feedback @hv_param -100 100 0, f 37;
 #X obj 1584 1161 r Low_Speed @hv_param 0 20 2;
-#X obj 1599 1259 r Low_Intensity @hv_param 0 100 20;
+#X obj 1599 1259 r Low_Intensity @hv_param 0 100 20, f 33;
 #X obj 199 939 hv.flanger2~ 20;
 #X obj 719 1139 hv.flanger2~ 20;
 #X obj 1219 1339 hv.flanger2~ 20;
@@ -110,6 +111,7 @@
 #X obj 799 1199 throw~ R;
 #X obj 1219 1399 throw~ L;
 #X obj 1299 1399 throw~ R;
+#X obj 1079 110 declare -path dep;
 #X connect 0 0 13 0 empty;
 #X connect 0 1 13 1 empty;
 #X connect 1 0 2 0 empty;

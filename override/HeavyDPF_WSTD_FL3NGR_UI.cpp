@@ -163,7 +163,7 @@ protected:
         auto MidFreqColorHovered =    ColorMid(Blue,   Green,   Red,   fmid, fmid_freq);
         auto LowColorActive      = ColorBright(Red,    flow);
         auto LowColorHovered     = ColorBright(RedBr,  flow);
-        
+
         auto HighMixActive       = ColorMix(HighColorActive,  Yellow,   fhigh, fhigh_mix);
         auto HighMixHovered      = ColorMix(HighColorHovered, YellowBr, fhigh, fhigh_mix);
         auto MidMixActive        = ColorMix(MidColorActive,   Yellow,   fmid,  fmid_mix);
@@ -195,7 +195,7 @@ protected:
                 ImGui::Text("Mid");
                 ImGui::Dummy(ImVec2(14.0f, 0.0f)); ImGui::SameLine();
                 ImGui::Text("Freq");
-                ImGui::Dummy(ImVec2(0.0f, 55.0f));
+                ImGui::Dummy(ImVec2(0.0f, 50.0f));
                 ImGui::Dummy(ImVec2(17.0f, 0.0f)); ImGui::SameLine();
                 ImGui::Text("Low");
                 ImGui::PopStyleColor();
