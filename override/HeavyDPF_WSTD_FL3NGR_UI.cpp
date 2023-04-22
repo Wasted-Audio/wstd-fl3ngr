@@ -241,11 +241,11 @@ protected:
                 {
                     if (ImGui::IsItemActivated())
                     {
-                        editParameter(11, true);
+                        editParameter(12, true);
                         if (ImGui::IsMouseDoubleClicked(0))
                             fmid_freq = 1337.0f;
                     }
-                    setParameterValue(11, fmid_freq);
+                    setParameterValue(12, fmid_freq);
                 }
                 ImGui::PopStyleColor(2);
 
