@@ -283,11 +283,8 @@ protected:
                         }
                         setParameterValue(2, fhigh_intensity);
                     }
-                    ImGui::PopStyleColor(2);
                     ImGui::SameLine();
 
-                    ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)HighColorActive);
-                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)HighColorHovered);
                     if (ImGuiKnobs::Knob("High Speed", &fhigh_speed, 0.0f, 20.0f, 0.05f, "%.1fHz", ImGuiKnobVariant_SteppedTick, 100, ImGuiKnob_Flags, 21))
                     {
                         if (ImGui::IsItemActivated())
@@ -299,11 +296,8 @@ protected:
                         }
                         setParameterValue(4, fhigh_speed);
                     }
-                    ImGui::PopStyleColor(2);
                     ImGui::SameLine();
 
-                    ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)HighColorActive);
-                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)HighColorHovered);
                     if (ImGuiKnobs::Knob("High Feedback", &fhigh_feedback, -100.0f, 100.0f, 1.0f, "%.0f%%", ImGuiKnobVariant_SpaceBipolar, 100, ImGuiKnob_Flags))
                     {
                         if (ImGui::IsItemActivated())
@@ -351,11 +345,8 @@ protected:
                         }
                         setParameterValue(13, fmid_intensity);
                     }
-                    ImGui::PopStyleColor(2);
                     ImGui::SameLine();
 
-                    ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)MidColorActive);
-                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)MidColorHovered);
                     if (ImGuiKnobs::Knob("Mid Speed", &fmid_speed, 0.0f, 20.0f, 0.05f, "%.1fHz", ImGuiKnobVariant_SteppedTick, 100, ImGuiKnob_Flags, 21))
                     {
                         if (ImGui::IsItemActivated())
@@ -367,11 +358,8 @@ protected:
                         }
                         setParameterValue(15, fmid_speed);
                     }
-                    ImGui::PopStyleColor(2);
                     ImGui::SameLine();
 
-                    ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)MidColorActive);
-                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)MidColorHovered);
                     if (ImGuiKnobs::Knob("Mid Feedback", &fmid_feedback, -100.0f, 100.0f, 1.0f, "%.0f%%", ImGuiKnobVariant_SpaceBipolar, 100, ImGuiKnob_Flags))
                     {
                         if (ImGui::IsItemActivated())
@@ -436,11 +424,8 @@ protected:
                         }
                         setParameterValue(7, flow_intensity);
                     }
-                    ImGui::PopStyleColor(2);
                     ImGui::SameLine();
 
-                    ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)LowColorActive);
-                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)LowColorHovered);
                     if (ImGuiKnobs::Knob("Low Speed", &flow_speed, 0.0f, 20.0f, 0.05f, "%.1fHz", ImGuiKnobVariant_SteppedTick, 100, ImGuiKnob_Flags, 21))
                     {
                         if (ImGui::IsItemActivated())
@@ -452,11 +437,8 @@ protected:
                         }
                         setParameterValue(9, flow_speed);
                     }
-                    ImGui::PopStyleColor(2);
                     ImGui::SameLine();
 
-                    ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)LowColorActive);
-                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)LowColorHovered);
                     if (ImGuiKnobs::Knob("Low Feedback", &flow_feedback, -100.0f, 100.0f, 1.0f, "%.0f%%", ImGuiKnobVariant_SpaceBipolar, 100, ImGuiKnob_Flags))
                     {
                         if (ImGui::IsItemActivated())
