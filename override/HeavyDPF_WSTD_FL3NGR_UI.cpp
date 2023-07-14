@@ -140,7 +140,7 @@ protected:
     */
     void onImGuiDisplay() override
     {
-
+        // Setup
         const float width = getWidth();
         const float height = getHeight();
         const float margin = 0.0f;
@@ -159,8 +159,7 @@ protected:
         ImFont* titleBarFont = io.Fonts->Fonts[2];
         ImFont* smallFont = io.Fonts->Fonts[3];
 
-        auto scaleFactor = getScaleFactor();
-
+        // Colors
         auto HighColorActive     = ColorBright(Blue,   fhigh);
         auto HighColorHovered    = ColorBright(BlueBr, fhigh);
         auto MidColorActive      =    ColorMid(Blue,   Green,   Red,   fmid, fmid_freq);
@@ -189,12 +188,15 @@ protected:
         auto LowMixActive        = ColorMix(LowColorActive,   Yellow,   flow,  flow_mix);
         auto LowMixHovered       = ColorMix(LowColorHovered,  YellowBr, flow,  flow_mix);
 
+        // Sizes
+        auto scaleFactor = getScaleFactor();
         const float hundred      = 100 * scaleFactor;
         const float seventy      = 70 * scaleFactor;
         const float knobWidth    = 85 * scaleFactor;
         const float toggleWidth  = 20 * scaleFactor;
         const float eqText       = 45 * scaleFactor;
 
+        // Steps
         auto high_speedstep      = 1.0f;
         auto mid_speedstep       = 1.0f;
         auto low_speedstep       = 1.0f;
@@ -228,16 +230,17 @@ protected:
         if(flow_speed > 2.0f)
             flow_range = true;
 
+        // Draw
         ImGui::PushFont(titleBarFont);
         if (ImGui::Begin("WSTD FL3NGR", nullptr, ImGuiWindowFlags_NoResize + ImGuiWindowFlags_NoCollapse))
         {
-
             ImGui::Dummy(ImVec2(0.0f, 8.0f) * scaleFactor);
             ImGui::PushFont(defaultFont);
             auto ImGuiKnob_Flags = ImGuiKnobFlags_DoubleClickReset + ImGuiKnobFlags_ValueTooltip + ImGuiKnobFlags_NoInput + ImGuiKnobFlags_ValueTooltipHideOnClick + ImGuiKnobFlags_NoTitle;
             auto ImGuiKnob_FlagsDB = ImGuiKnob_Flags + ImGuiKnobFlags_dB;
             auto ImGuiKnob_FlagsLog = ImGuiKnob_Flags + ImGuiKnobFlags_Logarithmic;
 
+            // EQ Text
             ImGui::BeginGroup();
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, TextClr);
@@ -257,6 +260,7 @@ protected:
             ImGui::EndGroup();
             ImGui::SameLine();
 
+            // EQ Section
             ImGui::BeginGroup();
             {
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)HighColorActive);
@@ -320,6 +324,7 @@ protected:
             ImGui::EndGroup(); ImGui::SameLine();
             ImGui::Dummy(ImVec2(20.0f, 0.0f) * scaleFactor); ImGui::SameLine();
 
+            // High Band
             ImGui::BeginGroup();
             {
                 ImGui::BeginGroup();
@@ -333,7 +338,6 @@ protected:
                             editParameter(2, true);
                             if (ImGui::IsMouseDoubleClicked(0))
                                 fhigh_intensity = 20.0f;
-
                         }
                         setParameterValue(2, fhigh_intensity);
                     }
@@ -399,7 +403,6 @@ protected:
                             ImGui::PopStyleColor(5);
                         }
                         ImGui::EndGroup();
-
                     }
                     ImGui::EndGroup();
                     ImGui::SameLine();
@@ -410,13 +413,11 @@ protected:
                             editParameter(1, true);
                             if (ImGui::IsMouseDoubleClicked(0))
                                 fhigh_feedback = 0.0f;
-
                         }
                         setParameterValue(1, fhigh_feedback);
                     }
                     ImGui::PopStyleColor(2);
                     ImGui::SameLine();
-
 
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)HighMixActive);
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)HighMixHovered);
@@ -427,7 +428,6 @@ protected:
                             editParameter(3, true);
                             if (ImGui::IsMouseDoubleClicked(0))
                                 fhigh_mix = 50.0f;
-
                         }
                         setParameterValue(3, fhigh_mix);
                     }
@@ -435,6 +435,7 @@ protected:
                 }
                 ImGui::EndGroup();
 
+                // Mid Band
                 ImGui::BeginGroup();
                 {
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)MidColorActive);
@@ -446,7 +447,6 @@ protected:
                             editParameter(13, true);
                             if (ImGui::IsMouseDoubleClicked(0))
                                 fmid_intensity = 20.0f;
-
                         }
                         setParameterValue(13, fmid_intensity);
                     }
@@ -524,13 +524,11 @@ protected:
                             editParameter(11, true);
                             if (ImGui::IsMouseDoubleClicked(0))
                                 fmid_feedback = 0.0f;
-
                         }
                         setParameterValue(11, fmid_feedback);
                     }
                     ImGui::PopStyleColor(2);
                     ImGui::SameLine();
-
 
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)MidMixActive);
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)MidMixHovered);
@@ -541,7 +539,6 @@ protected:
                             editParameter(14, true);
                             if (ImGui::IsMouseDoubleClicked(0))
                                 fmid_mix = 50.0f;
-
                         }
                         setParameterValue(14, fmid_mix);
                     }
@@ -549,6 +546,7 @@ protected:
                 }
                 ImGui::EndGroup();
 
+                // Effect Headers
                 ImGui::Dummy(ImVec2(0.0f, 23.0f) * scaleFactor);
                 ImGui::BeginGroup();
                 {
@@ -563,6 +561,7 @@ protected:
                 ImGui::EndGroup();
                 ImGui::Dummy(ImVec2(0.0f, 23.0f) * scaleFactor);
 
+                // Low Band
                 ImGui::BeginGroup();
                 {
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)LowColorActive);
@@ -574,7 +573,6 @@ protected:
                             editParameter(7, true);
                             if (ImGui::IsMouseDoubleClicked(0))
                                 flow_intensity = 20.0f;
-
                         }
                         setParameterValue(7, flow_intensity);
                     }
@@ -640,7 +638,6 @@ protected:
                             ImGui::PopStyleColor(5);
                         }
                         ImGui::EndGroup();
-
                     }
                     ImGui::EndGroup();
                     ImGui::SameLine();
@@ -652,13 +649,11 @@ protected:
                             editParameter(6, true);
                             if (ImGui::IsMouseDoubleClicked(0))
                                 flow_feedback = 0.0f;
-
                         }
                         setParameterValue(6, flow_feedback);
                     }
                     ImGui::PopStyleColor(2);
                     ImGui::SameLine();
-
 
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)LowMixActive);
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)LowMixHovered);
@@ -669,7 +664,6 @@ protected:
                             editParameter(8, true);
                             if (ImGui::IsMouseDoubleClicked(0))
                                 flow_mix = 50.0f;
-
                         }
                         setParameterValue(8, flow_mix);
                     }
