@@ -30,6 +30,9 @@ class ImGuiPluginUI : public UI
     float fmid_intensity = 20.0f;
     float fmid_mix = 50.0f;
     float fmid_speed = 2.0f;
+    bool fhigh_range = false;
+    bool flow_range = false;
+    bool fmid_range = false;
 
     ResizeHandle fResizeHandle;
 
@@ -56,6 +59,7 @@ public:
 
         io.Fonts->AddFontFromMemoryCompressedTTF((void*)veramobd_compressed_data, veramobd_compressed_size, 16.0f * getScaleFactor(), &fc);
         io.Fonts->AddFontFromMemoryCompressedTTF((void*)veramobd_compressed_data, veramobd_compressed_size, 21.0f * getScaleFactor(), &fc);
+        io.Fonts->AddFontFromMemoryCompressedTTF((void*)veramobd_compressed_data, veramobd_compressed_size, 11.0f * getScaleFactor(), &fc);
         io.Fonts->Build();
         io.FontDefault = io.Fonts->Fonts[1];
 
@@ -147,13 +151,15 @@ protected:
         ImGuiStyle& style = ImGui::GetStyle();
         style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
 
-
-        style.Colors[ImGuiCol_TitleBgActive] = (ImVec4)ImColor::HSV(3.31f / 3.6f, 0.64f, 0.40f);
-        style.Colors[ImGuiCol_WindowBg] = (ImVec4)ImColor::HSV(3.31f / 3.6f, 0.64f, 0.10f);
+        style.Colors[ImGuiCol_TitleBgActive] = (ImVec4)WstdTitleBgActive;
+        style.Colors[ImGuiCol_WindowBg] = (ImVec4)WstdWindowBg;
 
         ImGuiIO& io(ImGui::GetIO());
         ImFont* defaultFont = ImGui::GetFont();
         ImFont* titleBarFont = io.Fonts->Fonts[2];
+        ImFont* smallFont = io.Fonts->Fonts[3];
+
+        auto scaleFactor = getScaleFactor();
 
         auto HighColorActive     = ColorBright(Blue,   fhigh);
         auto HighColorHovered    = ColorBright(BlueBr, fhigh);
@@ -164,6 +170,18 @@ protected:
         auto LowColorActive      = ColorBright(Red,    flow);
         auto LowColorHovered     = ColorBright(RedBr,  flow);
 
+        auto HighRangeSw         = ColorBright(WhiteDr, fhigh, false);
+        auto HighRangeAct        = ColorBright(BlueDr, fhigh);
+        auto HighRangeActHv      = ColorBright(Blue, fhigh);
+
+        auto MidRangeSw          = ColorBright(WhiteDr, fmid, false);
+        auto MidRangeAct         = MidFreqColorActive;
+        auto MidRangeActHv       = MidFreqColorHovered;
+
+        auto LowRangeSw          = ColorBright(WhiteDr, flow, false);
+        auto LowRangeAct         = ColorBright(RedDr, flow);
+        auto LowRangeActHv       = ColorBright(Red, flow);
+
         auto HighMixActive       = ColorMix(HighColorActive,  Yellow,   fhigh, fhigh_mix);
         auto HighMixHovered      = ColorMix(HighColorHovered, YellowBr, fhigh, fhigh_mix);
         auto MidMixActive        = ColorMix(MidColorActive,   Yellow,   fmid,  fmid_mix);
@@ -171,14 +189,50 @@ protected:
         auto LowMixActive        = ColorMix(LowColorActive,   Yellow,   flow,  flow_mix);
         auto LowMixHovered       = ColorMix(LowColorHovered,  YellowBr, flow,  flow_mix);
 
-        const float hundred = 100 * getScaleFactor();
-        const float seventy = 70 * getScaleFactor();
+        const float hundred      = 100 * scaleFactor;
+        const float seventy      = 70 * scaleFactor;
+        const float knobWidth    = 85 * scaleFactor;
+        const float toggleWidth  = 20 * scaleFactor;
+        const float eqText       = 45 * scaleFactor;
+
+        auto high_speedstep      = 1.0f;
+        auto mid_speedstep       = 1.0f;
+        auto low_speedstep       = 1.0f;
+        auto percstep            = 1.0f;
+        auto dbstep              = 0.1f;
+        auto hzstep              = 20.0f;
+
+        if (io.KeyShift)
+        {
+            high_speedstep = (fhigh_range) ? 0.01f : 0.001f;
+            mid_speedstep = (fmid_range) ? 0.01f : 0.001f;
+            low_speedstep = (flow_range) ? 0.01f : 0.001f;
+
+            percstep = 0.1f;
+            dbstep = 0.01f;
+            hzstep = 1.0f;
+        }
+        else
+        {
+            high_speedstep = (fhigh_range) ? 0.1f : 0.01f;
+            mid_speedstep = (fmid_range) ? 0.1f : 0.01f;
+            low_speedstep = (flow_range) ? 0.1f : 0.01f;
+        }
+
+        if(fhigh_speed > 2.0f)
+            fhigh_range = true;
+
+        if(fmid_speed > 2.0f)
+            fmid_range = true;
+
+        if(flow_speed > 2.0f)
+            flow_range = true;
 
         ImGui::PushFont(titleBarFont);
         if (ImGui::Begin("WSTD FL3NGR", nullptr, ImGuiWindowFlags_NoResize + ImGuiWindowFlags_NoCollapse))
         {
 
-            ImGui::Dummy(ImVec2(0.0f, 8.0f) * getScaleFactor());
+            ImGui::Dummy(ImVec2(0.0f, 8.0f) * scaleFactor);
             ImGui::PushFont(defaultFont);
             auto ImGuiKnob_Flags = ImGuiKnobFlags_DoubleClickReset + ImGuiKnobFlags_ValueTooltip + ImGuiKnobFlags_NoInput + ImGuiKnobFlags_ValueTooltipHideOnClick + ImGuiKnobFlags_NoTitle;
             auto ImGuiKnob_FlagsDB = ImGuiKnob_Flags + ImGuiKnobFlags_dB;
@@ -186,21 +240,18 @@ protected:
 
             ImGui::BeginGroup();
             {
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.85f, 0.85f, 0.85f, 0.85f));
-                ImGui::Dummy(ImVec2(0.0f, 38.0f) * getScaleFactor());
-                ImGui::Dummy(ImVec2(14.0f, 0.0f) * getScaleFactor()); ImGui::SameLine();
-                ImGui::Text("High");
-                ImGui::Dummy(ImVec2(0.0f, 80.0f) * getScaleFactor());
-                ImGui::Dummy(ImVec2(17.0f, 0.0f) * getScaleFactor()); ImGui::SameLine();
-                ImGui::Text("Mid");
-                ImGui::Dummy(ImVec2(0.0f, 60.0f) * getScaleFactor());
-                ImGui::Dummy(ImVec2(17.0f, 0.0f) * getScaleFactor()); ImGui::SameLine();
-                ImGui::Text("Mid");
-                ImGui::Dummy(ImVec2(14.0f, 0.0f) * getScaleFactor()); ImGui::SameLine();
-                ImGui::Text("Freq");
-                ImGui::Dummy(ImVec2(0.0f, 50.0f) * getScaleFactor());
-                ImGui::Dummy(ImVec2(17.0f, 0.0f) * getScaleFactor()); ImGui::SameLine();
-                ImGui::Text("Low");
+                ImGui::PushStyleColor(ImGuiCol_Text, TextClr);
+                ImGui::Dummy(ImVec2(0.0f, 38.0f) * scaleFactor);
+                CenterTextX("High", eqText);
+                ImGui::Dummy(ImVec2(0.0f, 80.0f) * scaleFactor);
+                CenterTextX("Mid", eqText);
+                ImGui::Dummy(ImVec2(0.0f, 60.0f) * scaleFactor);
+                ImGui::PushFont(smallFont);
+                CenterTextX("Mid", eqText);
+                CenterTextX("Freq", eqText);
+                ImGui::PushFont(defaultFont);
+                ImGui::Dummy(ImVec2(0.0f, 60.0f) * scaleFactor);
+                CenterTextX("Low", eqText);
                 ImGui::PopStyleColor();
             }
             ImGui::EndGroup();
@@ -210,7 +261,7 @@ protected:
             {
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)HighColorActive);
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)HighColorHovered);
-                if (ImGuiKnobs::Knob("High", &fhigh, -15.0f, 15.0, 0.2f, "%.1fdB", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_FlagsDB, 7))
+                if (ImGuiKnobs::Knob("High", &fhigh, -15.0f, 15.0, dbstep, "%.2fdB", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_FlagsDB, 7))
                 {
 
                     if (ImGui::IsItemActivated())
@@ -225,7 +276,7 @@ protected:
 
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)MidColorActive);
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)MidColorHovered);
-                if (ImGuiKnobs::Knob("Mid", &fmid, -15.0f, 15.0, 0.2f, "%.1fdB", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_FlagsDB, 7))
+                if (ImGuiKnobs::Knob("Mid", &fmid, -15.0f, 15.0, dbstep, "%.2fdB", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_FlagsDB, 7))
                 {
                     if (ImGui::IsItemActivated())
                     {
@@ -237,10 +288,10 @@ protected:
                 }
                 ImGui::PopStyleColor(2);
 
-                ImGui::Dummy(ImVec2(7.5f, 0.0f) * getScaleFactor()); ImGui::SameLine();
+                ImGui::Dummy(ImVec2(7.5f, 0.0f) * scaleFactor); ImGui::SameLine();
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)MidFreqColorActive);
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)MidFreqColorHovered);
-                if (ImGuiKnobs::Knob("Mid Freq", &fmid_freq, 313.3f, 5705.6f, 50.0f, "%.1fHz", ImGuiKnobVariant_SteppedTick, seventy, ImGuiKnob_FlagsLog, 11))
+                if (ImGuiKnobs::Knob("Mid Freq", &fmid_freq, 313.3f, 5705.6f, hzstep, "%.1fHz", ImGuiKnobVariant_SteppedTick, seventy, ImGuiKnob_FlagsLog, 11))
                 {
                     if (ImGui::IsItemActivated())
                     {
@@ -254,7 +305,7 @@ protected:
 
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)LowColorActive);
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)LowColorHovered);
-                if (ImGuiKnobs::Knob("Low", &flow, -15.0f, 15.0, 0.2f, "%.1fdB", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_FlagsDB, 7))
+                if (ImGuiKnobs::Knob("Low", &flow, -15.0f, 15.0, dbstep, "%.2fdB", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_FlagsDB, 7))
                 {
                     if (ImGui::IsItemActivated())
                     {
@@ -267,7 +318,7 @@ protected:
                 ImGui::PopStyleColor(2);
             }
             ImGui::EndGroup(); ImGui::SameLine();
-            ImGui::Dummy(ImVec2(20.0f, 0.0f) * getScaleFactor()); ImGui::SameLine();
+            ImGui::Dummy(ImVec2(20.0f, 0.0f) * scaleFactor); ImGui::SameLine();
 
             ImGui::BeginGroup();
             {
@@ -275,7 +326,7 @@ protected:
                 {
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)HighColorActive);
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)HighColorHovered);
-                    if (ImGuiKnobs::Knob("High Intensity", &fhigh_intensity, 0.0f, 100.0f, 1.0f, "%.0f%%", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, 11))
+                    if (ImGuiKnobs::Knob("High Intensity", &fhigh_intensity, 0.0f, 100.0f, percstep, "%.1f%%", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, 11))
                     {
                         if (ImGui::IsItemActivated())
                         {
@@ -288,20 +339,71 @@ protected:
                     }
                     ImGui::SameLine();
 
-                    if (ImGuiKnobs::Knob("High Speed", &fhigh_speed, 0.0f, 20.0f, 0.05f, "%.1fHz", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, 21))
+                    // High Speed knob and range
+                    ImGui::BeginGroup();
                     {
-                        if (ImGui::IsItemActivated())
+                        auto fhigh_max = 20.0f;
+                        auto fhigh_steps = 21;
+                        if (not fhigh_range)
                         {
-                            editParameter(4, true);
-                            if (ImGui::IsMouseDoubleClicked(0))
-                                fhigh_speed = 2.0f;
-
+                            fhigh_max = 2.0f;
+                            fhigh_steps = 11;
                         }
-                        setParameterValue(4, fhigh_speed);
-                    }
-                    ImGui::SameLine();
 
-                    if (ImGuiKnobs::Knob("High Feedback", &fhigh_feedback, -100.0f, 100.0f, 1.0f, "%.0f%%", ImGuiKnobVariant_SpaceBipolar, hundred, ImGuiKnob_Flags))
+                        // High Speed knob
+                        if (ImGuiKnobs::Knob("High Speed", &fhigh_speed, 0.0f, fhigh_max, high_speedstep, "%.3fHz", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, fhigh_steps))
+                        {
+                            if (ImGui::IsItemActivated())
+                            {
+                                editParameter(4, true);
+                                if (ImGui::IsMouseDoubleClicked(0))
+                                    fhigh_speed = 2.0f;
+                            }
+                            setParameterValue(4, fhigh_speed);
+                        }
+                        ImGui::SameLine();
+
+                        // High Speed range
+                        ImGui::BeginGroup();
+                        {
+                            ImGui::Dummy(ImVec2(0.0f, 20.0f) * scaleFactor);
+
+                            // Range text
+                            ImGui::PushStyleColor(ImGuiCol_Text, TextClr);
+                            ImGui::PushFont(smallFont);
+                            auto rangedef = (fhigh_range) ? "fast": "slow";
+                            CenterTextX(rangedef, toggleWidth);
+                            ImGui::PushFont(defaultFont);
+                            ImGui::PopStyleColor();
+
+                            // knob
+                            ImGui::PushStyleColor(ImGuiCol_Text,            (ImVec4)HighRangeSw);
+
+                            // inactive colors
+                            ImGui::PushStyleColor(ImGuiCol_FrameBg,         (ImVec4)HighRangeAct);
+                            ImGui::PushStyleColor(ImGuiCol_FrameBgHovered,  (ImVec4)HighRangeActHv);
+
+                            // active colors
+                            ImGui::PushStyleColor(ImGuiCol_Button,          (ImVec4)HighRangeAct);
+                            ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)HighRangeActHv);
+
+                            if (ImGui::Toggle("##High_Range", &fhigh_range, ImGuiToggleFlags_Animated))
+                            {
+                                if (ImGui::IsItemActivated() && !fhigh_range)
+                                {
+                                    editParameter(4, true);
+                                    fhigh_speed = std::min(fhigh_speed, 2.0f);
+                                    setParameterValue(4, fhigh_speed);
+                                }
+                            }
+                            ImGui::PopStyleColor(5);
+                        }
+                        ImGui::EndGroup();
+
+                    }
+                    ImGui::EndGroup();
+                    ImGui::SameLine();
+                    if (ImGuiKnobs::Knob("High Feedback", &fhigh_feedback, -100.0f, 100.0f, percstep, "%.1f%%", ImGuiKnobVariant_SpaceBipolar, hundred, ImGuiKnob_Flags))
                     {
                         if (ImGui::IsItemActivated())
                         {
@@ -318,7 +420,7 @@ protected:
 
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)HighMixActive);
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)HighMixHovered);
-                    if (ImGuiKnobs::Knob("High Mix", &fhigh_mix, 0.0f, 100.0f, 1.0f, "%.0f%%", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, 11))
+                    if (ImGuiKnobs::Knob("High Mix", &fhigh_mix, 0.0f, 100.0f, percstep, "%.1f%%", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, 11))
                     {
                         if (ImGui::IsItemActivated())
                         {
@@ -337,7 +439,7 @@ protected:
                 {
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)MidColorActive);
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)MidColorHovered);
-                    if (ImGuiKnobs::Knob("Mid Intensity", &fmid_intensity, 0.0f, 100.0f, 1.0f, "%.0f%%", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, 11))
+                    if (ImGuiKnobs::Knob("Mid Intensity", &fmid_intensity, 0.0f, 100.0f, percstep, "%.1f%%", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, 11))
                     {
                         if (ImGui::IsItemActivated())
                         {
@@ -350,20 +452,72 @@ protected:
                     }
                     ImGui::SameLine();
 
-                    if (ImGuiKnobs::Knob("Mid Speed", &fmid_speed, 0.0f, 20.0f, 0.05f, "%.1fHz", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, 21))
+                    // Mid Speed knob and range
+                    ImGui::BeginGroup();
                     {
-                        if (ImGui::IsItemActivated())
+                        auto fmid_max = 20.0f;
+                        auto fmid_steps = 21;
+                        if (not fmid_range)
                         {
-                            editParameter(15, true);
-                            if (ImGui::IsMouseDoubleClicked(0))
-                                fmid_speed = 2.0f;
-
+                            fmid_max = 2.0f;
+                            fmid_steps = 11;
                         }
-                        setParameterValue(15, fmid_speed);
+
+                        // Mid Speed knob
+                        if (ImGuiKnobs::Knob("Mid Speed", &fmid_speed, 0.0f, fmid_max, mid_speedstep, "%.3fHz", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, fmid_steps))
+                        {
+                            if (ImGui::IsItemActivated())
+                            {
+                                editParameter(15, true);
+                                if (ImGui::IsMouseDoubleClicked(0))
+                                    fmid_speed = 2.0f;
+                            }
+                            setParameterValue(15, fmid_speed);
+                        }
+                        ImGui::SameLine();
+
+                        // Mid Speed range
+                        ImGui::BeginGroup();
+                        {
+                            ImGui::Dummy(ImVec2(0.0f, 20.0f) * scaleFactor);
+
+                            // Range text
+                            ImGui::PushStyleColor(ImGuiCol_Text, TextClr);
+                            ImGui::PushFont(smallFont);
+                            auto rangedef = (fmid_range) ? "fast": "slow";
+                            CenterTextX(rangedef, toggleWidth);
+                            ImGui::PushFont(defaultFont);
+                            ImGui::PopStyleColor();
+
+                            // knob
+                            ImGui::PushStyleColor(ImGuiCol_Text,            (ImVec4)MidRangeSw);
+
+                            // inactive colors
+                            ImGui::PushStyleColor(ImGuiCol_FrameBg,         (ImVec4)MidRangeAct);
+                            ImGui::PushStyleColor(ImGuiCol_FrameBgHovered,  (ImVec4)MidRangeActHv);
+
+                            // active colors
+                            ImGui::PushStyleColor(ImGuiCol_Button,          (ImVec4)MidRangeAct);
+                            ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)MidRangeActHv);
+
+                            if (ImGui::Toggle("##Mid_Range", &fmid_range, ImGuiToggleFlags_Animated))
+                            {
+                                if (ImGui::IsItemActivated() && !fmid_range)
+                                {
+                                    editParameter(15, true);
+                                    fmid_speed = std::min(fmid_speed, 2.0f);
+                                    setParameterValue(15, fmid_speed);
+                                }
+                            }
+                            ImGui::PopStyleColor(5);
+                        }
+                        ImGui::EndGroup();
+
                     }
+                    ImGui::EndGroup();
                     ImGui::SameLine();
 
-                    if (ImGuiKnobs::Knob("Mid Feedback", &fmid_feedback, -100.0f, 100.0f, 1.0f, "%.0f%%", ImGuiKnobVariant_SpaceBipolar, hundred, ImGuiKnob_Flags))
+                    if (ImGuiKnobs::Knob("Mid Feedback", &fmid_feedback, -100.0f, 100.0f, percstep, "%.1f%%", ImGuiKnobVariant_SpaceBipolar, hundred, ImGuiKnob_Flags))
                     {
                         if (ImGui::IsItemActivated())
                         {
@@ -380,7 +534,7 @@ protected:
 
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)MidMixActive);
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)MidMixHovered);
-                    if (ImGuiKnobs::Knob("Mid Mix", &fmid_mix, 0.0f, 100.0f, 1.0f, "%.0f%%", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, 11))
+                    if (ImGuiKnobs::Knob("Mid Mix", &fmid_mix, 0.0f, 100.0f, percstep, "%.1f%%", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, 11))
                     {
                         if (ImGui::IsItemActivated())
                         {
@@ -395,28 +549,25 @@ protected:
                 }
                 ImGui::EndGroup();
 
-                ImGui::Dummy(ImVec2(0.0f, 23.0f) * getScaleFactor());
+                ImGui::Dummy(ImVec2(0.0f, 23.0f) * scaleFactor);
                 ImGui::BeginGroup();
                 {
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.85f, 0.85f, 0.85f, 0.85f));
-                    ImGui::Dummy(ImVec2(5.0f, 0.0f) * getScaleFactor()); ImGui::SameLine();
-                    ImGui::Text("Intensity"); ImGui::SameLine();
-                    ImGui::Dummy(ImVec2(35.0f, 0.0f) * getScaleFactor()); ImGui::SameLine();
-                    ImGui::Text("Speed"); ImGui::SameLine();
-                    ImGui::Dummy(ImVec2(45.0f, 0.0f) * getScaleFactor()); ImGui::SameLine();
-                    ImGui::Text("Feedback"); ImGui::SameLine();
-                    ImGui::Dummy(ImVec2(43.0f, 0.0f) * getScaleFactor()); ImGui::SameLine();
-                    ImGui::Text("Mix"); ImGui::SameLine();
+                    ImGui::PushStyleColor(ImGuiCol_Text, TextClr);
+                    CenterTextX("Intensity", knobWidth); ImGui::SameLine();
+                    CenterTextX("Speed", knobWidth); ImGui::SameLine();
+                    CenterTextX("Range", toggleWidth); ImGui::SameLine();
+                    CenterTextX("Feedback", knobWidth); ImGui::SameLine();
+                    CenterTextX("Mix", knobWidth);
                     ImGui::PopStyleColor();
                 }
                 ImGui::EndGroup();
-                ImGui::Dummy(ImVec2(0.0f, 23.0f) * getScaleFactor());
+                ImGui::Dummy(ImVec2(0.0f, 23.0f) * scaleFactor);
 
                 ImGui::BeginGroup();
                 {
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)LowColorActive);
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)LowColorHovered);
-                    if (ImGuiKnobs::Knob("Low Intensity", &flow_intensity, 0.0f, 100.0f, 1.0f, "%.0f%%", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, 11))
+                    if (ImGuiKnobs::Knob("Low Intensity", &flow_intensity, 0.0f, 100.0f, percstep, "%.1f%%", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, 11))
                     {
                         if (ImGui::IsItemActivated())
                         {
@@ -429,20 +580,72 @@ protected:
                     }
                     ImGui::SameLine();
 
-                    if (ImGuiKnobs::Knob("Low Speed", &flow_speed, 0.0f, 20.0f, 0.05f, "%.1fHz", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, 21))
+                    // Low Speed knob and range
+                    ImGui::BeginGroup();
                     {
-                        if (ImGui::IsItemActivated())
+                        auto flow_max = 20.0f;
+                        auto flow_steps = 21;
+                        if (not flow_range)
                         {
-                            editParameter(9, true);
-                            if (ImGui::IsMouseDoubleClicked(0))
-                                flow_speed = 2.0f;
-
+                            flow_max = 2.0f;
+                            flow_steps = 11;
                         }
-                        setParameterValue(9, flow_speed);
+
+                        // Low Speed knob
+                        if (ImGuiKnobs::Knob("Low Speed", &flow_speed, 0.0f, flow_max, low_speedstep, "%.3fHz", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, flow_steps))
+                        {
+                            if (ImGui::IsItemActivated())
+                            {
+                                editParameter(9, true);
+                                if (ImGui::IsMouseDoubleClicked(0))
+                                    flow_speed = 2.0f;
+                            }
+                            setParameterValue(9, flow_speed);
+                        }
+                        ImGui::SameLine();
+
+                        // Low Speed range
+                        ImGui::BeginGroup();
+                        {
+                            ImGui::Dummy(ImVec2(0.0f, 20.0f) * scaleFactor);
+
+                            // Range text
+                            ImGui::PushStyleColor(ImGuiCol_Text, TextClr);
+                            ImGui::PushFont(smallFont);
+                            auto rangedef = (flow_range) ? "fast": "slow";
+                            CenterTextX(rangedef, toggleWidth);
+                            ImGui::PushFont(defaultFont);
+                            ImGui::PopStyleColor();
+
+                            // knob
+                            ImGui::PushStyleColor(ImGuiCol_Text,            (ImVec4)LowRangeSw);
+
+                            // inactive colors
+                            ImGui::PushStyleColor(ImGuiCol_FrameBg,         (ImVec4)LowRangeAct);
+                            ImGui::PushStyleColor(ImGuiCol_FrameBgHovered,  (ImVec4)LowRangeActHv);
+
+                            // active colors
+                            ImGui::PushStyleColor(ImGuiCol_Button,          (ImVec4)LowRangeAct);
+                            ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)LowRangeActHv);
+
+                            if (ImGui::Toggle("##Low_Range", &flow_range, ImGuiToggleFlags_Animated))
+                            {
+                                if (ImGui::IsItemActivated() && !flow_range)
+                                {
+                                    editParameter(9, true);
+                                    flow_speed = std::min(flow_speed, 2.0f);
+                                    setParameterValue(9, flow_speed);
+                                }
+                            }
+                            ImGui::PopStyleColor(5);
+                        }
+                        ImGui::EndGroup();
+
                     }
+                    ImGui::EndGroup();
                     ImGui::SameLine();
 
-                    if (ImGuiKnobs::Knob("Low Feedback", &flow_feedback, -100.0f, 100.0f, 1.0f, "%.0f%%", ImGuiKnobVariant_SpaceBipolar, hundred, ImGuiKnob_Flags))
+                    if (ImGuiKnobs::Knob("Low Feedback", &flow_feedback, -100.0f, 100.0f, percstep, "%.1f%%", ImGuiKnobVariant_SpaceBipolar, hundred, ImGuiKnob_Flags))
                     {
                         if (ImGui::IsItemActivated())
                         {
@@ -459,7 +662,7 @@ protected:
 
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive,    (ImVec4)LowMixActive);
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered,   (ImVec4)LowMixHovered);
-                    if (ImGuiKnobs::Knob("Low Mix", &flow_mix, 0.0f, 100.0f, 1.0f, "%.0f%%", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, 11))
+                    if (ImGuiKnobs::Knob("Low Mix", &flow_mix, 0.0f, 100.0f, percstep, "%.1f%%", ImGuiKnobVariant_SteppedTick, hundred, ImGuiKnob_Flags, 11))
                     {
                         if (ImGui::IsItemActivated())
                         {
