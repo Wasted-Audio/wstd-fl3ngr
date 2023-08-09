@@ -189,11 +189,11 @@ protected:
         auto LowMixHovered       = ColorMix(LowColorHovered,  YellowBr, flow,  flow_mix);
 
         // Sizes
-        auto scaleFactor = getScaleFactor();
+        auto scaleFactor         = getScaleFactor();
         const float hundred      = 100 * scaleFactor;
         const float seventy      = 70 * scaleFactor;
         const float knobWidth    = 85 * scaleFactor;
-        const float toggleWidth  = 20 * scaleFactor;
+        const float toggleWidth  = 18 * scaleFactor;
         const float eqText       = 45 * scaleFactor;
 
         // Steps
