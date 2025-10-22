@@ -252,7 +252,7 @@ protected:
                 ImGui::PushFont(smallFont);
                 CenterTextX("Mid", eqText);
                 CenterTextX("Freq", eqText);
-                ImGui::PushFont(defaultFont);
+                ImGui::PopFont();
                 ImGui::Dummy(ImVec2(0.0f, 60.0f) * scaleFactor);
                 CenterTextX("Low", eqText);
                 ImGui::PopStyleColor();
@@ -377,7 +377,7 @@ protected:
                             ImGui::PushFont(smallFont);
                             auto rangedef = (fhigh_range) ? "fast": "slow";
                             CenterTextX(rangedef, toggleWidth);
-                            ImGui::PushFont(defaultFont);
+                            ImGui::PopFont();
                             ImGui::PopStyleColor();
 
                             // knob
@@ -486,7 +486,7 @@ protected:
                             ImGui::PushFont(smallFont);
                             auto rangedef = (fmid_range) ? "fast": "slow";
                             CenterTextX(rangedef, toggleWidth);
-                            ImGui::PushFont(defaultFont);
+                            ImGui::PopFont();
                             ImGui::PopStyleColor();
 
                             // knob
@@ -612,7 +612,7 @@ protected:
                             ImGui::PushFont(smallFont);
                             auto rangedef = (flow_range) ? "fast": "slow";
                             CenterTextX(rangedef, toggleWidth);
-                            ImGui::PushFont(defaultFont);
+                            ImGui::PopFont();
                             ImGui::PopStyleColor();
 
                             // knob
