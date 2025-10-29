@@ -3,6 +3,9 @@
  */
 
 #include "DistrhoUI.hpp"
+#ifdef DISTRHO_OS_WASM
+#include "DistrhoStandaloneUtils.hpp"
+#endif
 #include "ResizeHandle.hpp"
 #include "veramobd.hpp"
 #include "wstdcolors.hpp"
@@ -144,6 +147,9 @@ protected:
         const float width = getWidth();
         const float height = getHeight();
         const float margin = 0.0f;
+        #ifdef DISTRHO_OS_WASM
+        static bool inputActive = false;
+        #endif
 
         ImGui::SetNextWindowPos(ImVec2(margin, margin));
         ImGui::SetNextWindowSize(ImVec2(width - 2 * margin, height - 2 * margin));
@@ -236,6 +242,25 @@ protected:
         {
             ImGui::Dummy(ImVec2(0.0f, 8.0f) * scaleFactor);
             ImGui::PushFont(defaultFont);
+
+            #ifdef DISTRHO_OS_WASM
+            if (!inputActive)
+            {
+                ImGui::OpenPopup("Activate");
+            }
+
+            if (ImGui::BeginPopupModal("Activate", nullptr, ImGuiWindowFlags_NoResize + ImGuiWindowFlags_NoMove))
+            {
+                if (ImGui::Button("OK", ImVec2(80, 0)))
+                {
+                    requestAudioInput();
+                    inputActive = true;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+            #endif
+
             auto ImGuiKnob_Flags = ImGuiKnobFlags_DoubleClickReset + ImGuiKnobFlags_ValueTooltip + ImGuiKnobFlags_NoInput + ImGuiKnobFlags_ValueTooltipHideOnClick + ImGuiKnobFlags_NoTitle;
             auto ImGuiKnob_FlagsDB = ImGuiKnob_Flags + ImGuiKnobFlags_dB;
             auto ImGuiKnob_FlagsLog = ImGuiKnob_Flags + ImGuiKnobFlags_Logarithmic;
@@ -252,7 +277,7 @@ protected:
                 ImGui::PushFont(smallFont);
                 CenterTextX("Mid", eqText);
                 CenterTextX("Freq", eqText);
-                ImGui::PushFont(defaultFont);
+                ImGui::PopFont();
                 ImGui::Dummy(ImVec2(0.0f, 60.0f) * scaleFactor);
                 CenterTextX("Low", eqText);
                 ImGui::PopStyleColor();
@@ -377,7 +402,7 @@ protected:
                             ImGui::PushFont(smallFont);
                             auto rangedef = (fhigh_range) ? "fast": "slow";
                             CenterTextX(rangedef, toggleWidth);
-                            ImGui::PushFont(defaultFont);
+                            ImGui::PopFont();
                             ImGui::PopStyleColor();
 
                             // knob
@@ -486,7 +511,7 @@ protected:
                             ImGui::PushFont(smallFont);
                             auto rangedef = (fmid_range) ? "fast": "slow";
                             CenterTextX(rangedef, toggleWidth);
-                            ImGui::PushFont(defaultFont);
+                            ImGui::PopFont();
                             ImGui::PopStyleColor();
 
                             // knob
@@ -612,7 +637,7 @@ protected:
                             ImGui::PushFont(smallFont);
                             auto rangedef = (flow_range) ? "fast": "slow";
                             CenterTextX(rangedef, toggleWidth);
-                            ImGui::PushFont(defaultFont);
+                            ImGui::PopFont();
                             ImGui::PopStyleColor();
 
                             // knob
