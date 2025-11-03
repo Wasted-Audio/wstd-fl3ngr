@@ -66,18 +66,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: distrho/dpf-makefile-action@v1
-        with:
-          target: ${{ matrix.target }}
-          hvcc: True
-          dpf_path: 'dep/dpf'
-
-  pluginval:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Import APP Certificates
         uses: apple-actions/import-codesign-certs@v2
@@ -106,6 +94,18 @@ jobs:
           MACOS_NOTARIZATION_TEAM: ${{ secrets.MACOS_NOTARIZATION_TEAM }}
         with:
           target: ${{ matrix.target }}
+          hvcc: True
+          dpf_path: 'dep/dpf'
+
+  pluginval:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: distrho/dpf-makefile-action@v1
+        with:
+          target: pluginval
           hvcc: True
           dpf_path: 'dep/dpf'
 
